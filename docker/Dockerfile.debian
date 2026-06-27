@@ -1,0 +1,36 @@
+ARG BASE_IMAGE=lcr.loongnix.cn/debian:14
+FROM $BASE_IMAGE AS builder
+
+ARG BPFTOOL_BRANCH=v6.7.0
+
+WORKDIR /home
+
+RUN apt-get update \
+  && apt-get install -y git make file gcc libelf-dev \
+  && apt-get clean && rm -rf /var/lib/apt/lists/* \
+  && git clone --recurse-submodules --branch ${BPFTOOL_BRANCH} https://github.com/libbpf/bpftool.git \
+  && cd bpftool/src \
+  && make \
+  && ls -lh bpftool \
+  && file bpftool \
+  && ./bpftool --version
+
+FROM $BASE_IMAGE
+
+ARG BPFTOOL_BRANCH=v6.7.0
+
+ENV BPFTOOL_VERSION=${BPFTOOL_BRANCH}
+
+LABEL maintainer="徐晓伟 <xuxiaowei@xuxiaowei.com.cn>" \
+      license="Apache-2.0" \
+      org.opencontainers.image.authors="徐晓伟 <xuxiaowei@xuxiaowei.com.cn>" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.title="LoongArch bpftool" \
+      org.opencontainers.image.description="bpftool ${BPFTOOL_BRANCH} for LoongArch (loong64)" \
+      org.opencontainers.image.version="${BPFTOOL_BRANCH}" \
+      org.opencontainers.image.url="https://github.com/kubernetes-loong64/bpftool-loong64" \
+      org.opencontainers.image.source="https://github.com/kubernetes-loong64/bpftool-loong64"
+
+COPY --from=builder /home/bpftool/src/bpftool /usr/local/bin/
+
+RUN bpftool --version
