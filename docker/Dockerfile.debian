@@ -17,6 +17,10 @@ RUN apt-get update \
 
 FROM $BASE_IMAGE
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends libelf-dev \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 ARG BPFTOOL_BRANCH=v6.7.0
 
 ENV BPFTOOL_VERSION=${BPFTOOL_BRANCH}
