@@ -5,7 +5,7 @@ ARG BPFTOOL_BRANCH=v6.7.0
 
 WORKDIR /home
 
-RUN dnf install -y git gcc libbpf-devel file \
+RUN dnf install -y git gcc libbpf-devel file openssl-devel \
   && dnf clean all \
   && rm -rf /var/cache/dnf \
   && git clone --recurse-submodules --branch ${BPFTOOL_BRANCH} https://github.com/libbpf/bpftool.git \
